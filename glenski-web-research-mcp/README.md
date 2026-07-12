@@ -5,9 +5,9 @@
 [![No API Key](https://img.shields.io/badge/API%20key-none%20required-brightgreen.svg)](#no-api-keys)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Claude%20Code%20%7C%20Desktop%20%7C%20Codex-blueviolet.svg)](https://modelcontextprotocol.io)
 
-**Live web research for Claude. No API key. No vendor lock-in. No rate bills.**
+**Live web research for any MCP host. No API key. No vendor lock-in. No rate bills.**
 
-Three tools — `web_search`, `fetch_page`, `multi_search` — turn Claude into a live research engine that searches, reads, and cross-references before answering. Powered by DuckDuckGo, httpx, and BeautifulSoup. Works with Claude Code, Claude Desktop, Codex, and any MCP-compatible host.
+Three tools — `web_search`, `fetch_page`, `multi_search` — turn your AI into a live research engine that searches, reads, and cross-references before answering. Powered by DuckDuckGo, httpx, and BeautifulSoup. Works with Claude Code, Claude Desktop, Codex, and any MCP-compatible host.
 
 Part of [Glenski-MCPs](https://github.com/Glenskii/Glenski-MCPs).
 
