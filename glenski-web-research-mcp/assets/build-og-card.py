@@ -98,7 +98,7 @@ print(f"  Total content height: {TOTAL_H}px, starting at y={Y_START}")
 y = Y_START
 
 # Repo label
-draw.text((PAD, y), "github.com/Glenskii/Glenski-Toolkit", font=f_label, fill=ORANGE)
+draw.text((PAD, y), "github.com/Glenskii/Glenski-MCPs", font=f_label, fill=ORANGE)
 y += LABEL_H + GAP_LH
 
 # Heading line 1
@@ -164,7 +164,7 @@ for sy in range(H):
     draw.point((SEP_X, sy), fill=(r, g, b))
 
 # ─── Right zone: logo ────────────────────────────────────────────────────────
-LOGO_PATH = "C:/Users/Glen/Documents/GitHub/Glenski-Github/assets/GEG-Head-logo.png"
+LOGO_PATH = "C:/Users/Glen/Documents/GitHub/Glenski-MCPs/glenski-web-research-mcp/assets/GEG-Head-logo.png"
 logo_raw  = Image.open(LOGO_PATH).convert("RGBA")
 
 LOGO_SIZE = 340
@@ -204,7 +204,7 @@ if handle_y + 18 < H - 20:   # only draw if it fits
     )
 
 # ─── Save ────────────────────────────────────────────────────────────────────
-OUT = "C:/Users/Glen/Documents/GitHub/Glenski-Github/assets/social-preview.png"
+OUT = "C:/Users/Glen/Documents/GitHub/Glenski-MCPs/assets/social-preview.png"
 canvas.save(OUT, "PNG")
 print(f"\n  Saved: {OUT}")
 print(f"  Dimensions: {canvas.size}")
