@@ -1,5 +1,7 @@
 # Glenski-MCPs
 
+![Glenski-MCPs](./assets/social-preview.png)
+
 **Production-grade MCP servers by Glen E. Grant.**
 
 Self-contained, documented, zero-bloat tools that add live capability to Claude. Each server solves one problem well — no wrapper bloat, no paid APIs you don't need, no lock-in.
