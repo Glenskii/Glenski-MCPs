@@ -49,6 +49,15 @@ Then wire the server path into `~/.claude/mcp.json` (Claude Code) or `claude_des
 
 ---
 
+## What people are saying
+
+![Reply from @AIDailyGuy on X](./assets/2026-07-12_212533.jpg)
+
+> "Same page in all three searches is a signal. That's the line that sells the update... Respect for shipping it keyless and free."
+> — [Jake Z (@AIDailyGuy)](https://x.com/AIDailyGuy)
+
+---
+
 ## Author
 
 **Glen E. Grant**
