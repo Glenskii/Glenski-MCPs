@@ -1,4 +1,4 @@
-# Glenski-MCPs
+# Glenski MCPs
 
 ![Glenski-MCPs](./assets/social-preview.png)
 
@@ -8,6 +8,21 @@ These are local-first tools for people who want useful AI capabilities without
 wrapping every action in another paid service. Each server is self-contained,
 documented, readable, and designed to work with any MCP-compatible host.
 
+## Why this repo exists
+
+I like tools that do one job clearly. I also like knowing what is running on my
+machine, where the data goes, and whether a useful feature really needs another
+subscription.
+
+That leads to a few simple rules:
+
+- No API key when a solid free option can do the job
+- No hidden model calls
+- No vendor lock-in
+- Secure defaults for network access and hostile page content
+- Structured output that gives the connected AI host good evidence to work with
+- Code that can be read, tested, and changed without unpacking a framework
+
 ## Available servers
 
 | Server | What it does | API key |
@@ -15,6 +30,9 @@ documented, readable, and designed to work with any MCP-compatible host.
 | [Glenski Web Research MCP](./glenski-web-research-mcp/) | Searches, cross-references, fetches, ranks, and prepares citation-ready web evidence | None |
 
 ## Glenski Web Research MCP v3
+
+Built to answer real questions with cited, cross-referenced evidence, not just
+return a list of links.
 
 The research server now has four tools:
 
@@ -43,21 +61,6 @@ python -m pip install -e .
 
 The server README includes ready-to-use configuration for Codex, Claude Code,
 Claude Desktop, Cursor, and Windsurf.
-
-## Why this repo exists
-
-I like tools that do one job clearly. I also like knowing what is running on my
-machine, where the data goes, and whether a useful feature really needs another
-subscription.
-
-That leads to a few simple rules:
-
-- No API key when a solid free option can do the job
-- No hidden model calls
-- No vendor lock-in
-- Secure defaults for network access and hostile page content
-- Structured output that gives the connected AI host good evidence to work with
-- Code that can be read, tested, and changed without unpacking a framework
 
 ## Author
 
