@@ -10,9 +10,9 @@ documented, readable, and designed to work with any MCP-compatible host.
 
 ## Why this repo exists
 
-I like tools that do one job clearly. I also like knowing what is running on my
-machine, where the data goes, and whether a useful feature really needs another
-subscription.
+I like tools that do one job clearly. I also like a degree of privacy for some
+works: knowing what's running on my machine and where the data goes. And I like
+not paying API tokens for something that doesn't need a model call to work.
 
 That leads to a few simple rules:
 
