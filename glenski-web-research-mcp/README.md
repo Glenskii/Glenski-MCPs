@@ -86,7 +86,7 @@ The response contains:
       "snippets": ["Relevant passage from the fetched page."]
     }
   ],
-  "conflict_watch": [],
+  "topic_overlap": [],
   "fetch_gaps": [],
   "follow_up_questions": []
 }
@@ -95,6 +95,12 @@ The response contains:
 Source scores are ranking signals, not claims of absolute truth. The score
 reasons are returned beside every source so the host and user can inspect why a
 page ranked well.
+
+`topic_overlap` flags topics (limit, cost, support, risk) that more than one
+source discusses. It is a topic-overlap signal, not a conflict detector: it
+does not compare the actual values sources report, only whether they touch
+the same keyword bucket. Sources that fully agree will still show up here.
+Treat it as "verify these together," not "these disagree."
 
 ### `web_search`
 
@@ -316,6 +322,23 @@ server uses DuckDuckGo, `httpx`, Beautiful Soup, and the MCP Python SDK.
 
 ## Changelog
 
+### v3.0.1
+
+- Fixed `_is_primary_source` matching hint words as bare substrings anywhere
+  in a hostname (for example `fake-docs.example.com` or
+  `myresearch.marketing.com` scoring as primary sources). Now matches full
+  hostname labels or real suffixes only, the same standard `_matches_domain`
+  already used for domain filtering.
+- Fixed `_evidence_snippets` returning duplicate passages when a page repeats
+  a sentence (nav text, repeated instructions). Snippets are now
+  deduplicated before the limit is applied.
+- Renamed `conflict_watch` to `topic_overlap` in the `deep_research` response
+  to match what it actually measures: topical overlap across sources, not a
+  detected disagreement. The instruction text was reworded to say "verify
+  agreement" rather than imply a conflict was found.
+- Added tests for include/exclude domain filtering inside `deep_research`,
+  fetch-gap accumulation, and the low-confidence path.
+
 ### v3.0
 
 - Added the `deep_research` workflow
@@ -324,7 +347,7 @@ server uses DuckDuckGo, `httpx`, Beautiful Soup, and the MCP Python SDK.
 - Added include and exclude domain filters
 - Added parallel source fetching and question-matched evidence extraction
 - Added citation IDs and answer instructions for claim-level citations
-- Added conflict-watch topics, confidence signals, fetch gaps, and follow-ups
+- Added topic-overlap flags, confidence signals, fetch gaps, and follow-ups
 - Added page metadata extraction for stronger citation records
 - Preserved `web_search`, `multi_search`, and `fetch_page`
 - Kept the server API-key-free with no new runtime dependencies

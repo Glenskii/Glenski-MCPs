@@ -104,8 +104,7 @@ def test_fetch_page_labels_external_content_as_untrusted(monkeypatch):
             200,
             headers={"content-type": "text/html; charset=utf-8"},
             text=(
-                "<html><title>Page</title><article>"
-                "<p>External research text.</p></article></html>"
+                "<html><title>Page</title><article><p>External research text.</p></article></html>"
             ),
         )
 
@@ -154,6 +153,33 @@ def test_domain_matching_does_not_allow_lookalikes():
     assert server._matches_domain("docs.example.com", "example.com")
     assert server._matches_domain("example.com", "example.com")
     assert not server._matches_domain("example.com.evil.test", "example.com")
+
+
+def test_primary_source_detection_rejects_substring_lookalikes():
+    assert not server._is_primary_source("https://fake-docs.example.com/page")
+    assert not server._is_primary_source("https://myresearch.marketing.com/page")
+    assert not server._is_primary_source("https://worked.eduworks.com/page")
+
+    assert server._is_primary_source("https://docs.python.org/3/")
+    assert server._is_primary_source("https://developers.cloudflare.com/workers/")
+    assert server._is_primary_source("https://mit.edu/about")
+    assert server._is_primary_source("https://example.ac.uk/research")
+    assert server._is_primary_source("https://github.com/openai/skills")
+
+
+def test_evidence_snippets_deduplicate_repeated_sentences():
+    text = (
+        "In the Cloudflare dashboard, go to the Workers page for setup steps. "
+        "In the Cloudflare dashboard, go to the Workers page for setup steps. "
+        "In the Cloudflare dashboard, go to the Workers page for setup steps. "
+        "A unique closing sentence about pricing that differs from the rest here."
+    )
+
+    snippets = server._evidence_snippets(
+        text, "How do I configure Cloudflare Workers pricing?", limit=3
+    )
+
+    assert len(snippets) == len(set(snippets))
 
 
 def test_source_scoring_rewards_agreement_and_primary_sources():
@@ -274,8 +300,119 @@ def test_deep_research_builds_citation_ready_evidence(monkeypatch):
     assert result["evidence"][1]["evidence_id"] == "S2"
     assert result["summary"]["primary_sources"] == 1
     assert result["summary"]["confidence"] == "medium"
-    assert any(item["topic"] == "limit" for item in result["conflict_watch"])
+    assert any(item["topic"] == "limit" for item in result["topic_overlap"])
     assert "[S1]" in result["answer_instructions"]
+
+
+def test_deep_research_applies_include_and_exclude_domain_filters(monkeypatch):
+    async def fake_multi_search(*args, **kwargs):
+        return {
+            "unique_source_count": 3,
+            "unique_sources": [
+                {
+                    "url": "https://developers.example.com/docs",
+                    "title": "Official docs",
+                    "agreement_count": 2,
+                    "found_by": ["query one"],
+                },
+                {
+                    "url": "https://blocked.test/page",
+                    "title": "Should be excluded",
+                    "agreement_count": 1,
+                    "found_by": ["query one"],
+                },
+                {
+                    "url": "https://not-allowed.test/page",
+                    "title": "Not on the allow list",
+                    "agreement_count": 1,
+                    "found_by": ["query one"],
+                },
+            ],
+            "results_by_query": {},
+        }
+
+    def fake_fetch_page(url, max_chars):
+        return {
+            "url": url,
+            "title": "Fetched source",
+            "text": "A relevant passage about the research question domain filtering.",
+            "timestamp": "2026-07-27T12:00:00Z",
+            "metadata": {},
+            "js_rendered_hint": False,
+        }
+
+    monkeypatch.setattr(server, "multi_search", fake_multi_search)
+    monkeypatch.setattr(server, "fetch_page", fake_fetch_page)
+
+    result = asyncio.run(
+        server.deep_research(
+            "How does domain filtering work?",
+            depth="quick",
+            include_domains=["developers.example.com", "blocked.test"],
+            exclude_domains=["blocked.test"],
+            max_sources=5,
+        )
+    )
+
+    urls = [item["url"] for item in result["evidence"]]
+    assert urls == ["https://developers.example.com/docs"]
+    assert not any("not-allowed.test" in url for url in urls)
+    assert not any("blocked.test" in url for url in urls)
+
+
+def test_deep_research_reports_fetch_gaps_and_low_confidence(monkeypatch):
+    async def fake_multi_search(*args, **kwargs):
+        return {
+            "unique_source_count": 2,
+            "unique_sources": [
+                {
+                    "url": "https://example.test/broken",
+                    "title": "Broken fetch",
+                    "agreement_count": 1,
+                    "found_by": ["query one"],
+                },
+                {
+                    "url": "https://example.test/js-app",
+                    "title": "JS rendered page",
+                    "agreement_count": 1,
+                    "found_by": ["query one"],
+                },
+            ],
+            "results_by_query": {},
+        }
+
+    def fake_fetch_page(url, max_chars):
+        if "broken" in url:
+            return {
+                "url": url,
+                "error_code": "REQUEST_FAILED",
+                "error": "Request failed: connection reset",
+                "timestamp": "2026-07-27T12:00:00Z",
+            }
+        return {
+            "url": url,
+            "title": "JS app",
+            "text": "short",
+            "timestamp": "2026-07-27T12:00:00Z",
+            "metadata": {},
+            "js_rendered_hint": True,
+        }
+
+    monkeypatch.setattr(server, "multi_search", fake_multi_search)
+    monkeypatch.setattr(server, "fetch_page", fake_fetch_page)
+
+    result = asyncio.run(
+        server.deep_research(
+            "What happens when fetches fail?",
+            depth="quick",
+            max_sources=2,
+        )
+    )
+
+    gap_error_codes = {gap.get("error_code") for gap in result["fetch_gaps"]}
+    assert "REQUEST_FAILED" in gap_error_codes
+    assert "JS_RENDERED" in gap_error_codes
+    assert result["summary"]["confidence"] == "low"
 
 
 def test_deep_research_validates_controls():

@@ -43,8 +43,9 @@ The research server now has four tools:
 
 `deep_research` is the main event. It plans several queries, scores sources,
 fetches the strongest pages, extracts relevant passages, assigns citation IDs,
-flags topics that may contain conflicting claims, and gives the host model a
-clean evidence package for the final answer.
+flags topics that multiple sources discuss so they can be checked against
+each other, and gives the host model a clean evidence package for the final
+answer.
 
 It is designed to feel closer to a Perplexity-style research workflow while
 remaining free, transparent, and local-first.
