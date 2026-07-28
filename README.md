@@ -2,73 +2,74 @@
 
 ![Glenski-MCPs](./assets/social-preview.png)
 
-**Production-grade MCP servers by Glen E. Grant.**
+Practical MCP servers built by [Glen E. Grant](https://profile.glenegrant.com).
 
-Self-contained, documented, zero-bloat tools that add live capability to Claude. Each server solves one problem well — no wrapper bloat, no paid APIs you don't need, no lock-in.
+These are local-first tools for people who want useful AI capabilities without
+wrapping every action in another paid service. Each server is self-contained,
+documented, readable, and designed to work with any MCP-compatible host.
 
-Wire into Claude Code or Claude Desktop. Start using it. Done.
+## Available servers
 
-By [Glen E. Grant](https://profile.glenegrant.com) · [glenegrant.com](https://glenegrant.com)
+| Server | What it does | API key |
+|---|---|---|
+| [Glenski Web Research MCP](./glenski-web-research-mcp/) | Searches, cross-references, fetches, ranks, and prepares citation-ready web evidence | None |
 
----
+## Glenski Web Research MCP v3
 
-## Servers
+The research server now has four tools:
 
-| MCP | What it does | API key |
-|-----|-------------|---------|
-| [glenski-web-research-mcp](./glenski-web-research-mcp/) | Live web search, page fetch, and parallel multi-angle research. DuckDuckGo-powered. JS-page detection with Playwright fallback. | None |
+- `deep_research` handles the full workflow from question to evidence package
+- `web_search` runs a focused DuckDuckGo search
+- `multi_search` searches several angles in parallel
+- `fetch_page` safely extracts readable content from a public page
 
----
+`deep_research` is the main event. It plans several queries, scores sources,
+fetches the strongest pages, extracts relevant passages, assigns citation IDs,
+flags topics that may contain conflicting claims, and gives the host model a
+clean evidence package for the final answer.
 
-## Install any server
+It is designed to feel closer to a Perplexity-style research workflow while
+remaining free, transparent, and local-first.
 
-Every server is a self-contained folder with its own `requirements.txt` and `README.md`. Install is the same for all:
+## Install
 
-```bash
-git clone https://github.com/Glenskii/Glenski-MCPs
-cd Glenski-MCPs/<server-name>
-pip install -r requirements.txt
+```powershell
+git clone https://github.com/Glenskii/Glenski-MCPs.git
+cd Glenski-MCPs\glenski-web-research-mcp
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e .
 ```
 
-Then wire the server path into `~/.claude/mcp.json` (Claude Code) or `claude_desktop_config.json` (Claude Desktop). Each server's README has the exact config block and venv setup instructions.
+The server README includes ready-to-use configuration for Codex, Claude Code,
+Claude Desktop, Cursor, and Windsurf.
 
----
+## Why this repo exists
 
-## Philosophy
+I like tools that do one job clearly. I also like knowing what is running on my
+machine, where the data goes, and whether a useful feature really needs another
+subscription.
 
-- **No paid APIs unless the capability genuinely requires one.** DuckDuckGo is free. Local processing is free. Only pay for what adds real value.
-- **No wrapper bloat.** Each server does one thing well and integrates cleanly into the MCP tool ecosystem.
-- **Transparent.** Read the source. Understand exactly what runs on your machine.
-- **Standard format.** Every server works with Claude Code, Claude Desktop, Cursor, Windsurf, and any MCP-compatible host.
+That leads to a few simple rules:
 
----
-
-## Related
-
-**[Glenski-Toolkit](https://github.com/Glenskii/Glenski-Toolkit)** — Skills and prompt guides for Claude Code. Quality enforcement tools, design standards, SEO, security audit, and more. MCP servers live here instead to keep each repo focused.
-
----
-
-## What people are saying
-
-![Reply from @AIDailyGuy on X](./assets/2026-07-12_212533.jpg)
-
-> "Same page in all three searches is a signal. That's the line that sells the update... Respect for shipping it keyless and free."
-> — [Jake Z (@AIDailyGuy)](https://x.com/AIDailyGuy)
-
----
+- No API key when a solid free option can do the job
+- No hidden model calls
+- No vendor lock-in
+- Secure defaults for network access and hostile page content
+- Structured output that gives the connected AI host good evidence to work with
+- Code that can be read, tested, and changed without unpacking a framework
 
 ## Author
 
 **Glen E. Grant**
-[profile.glenegrant.com](https://profile.glenegrant.com) · [glen@glenegrant.com](mailto:glen@glenegrant.com) · [github.com/Glenskii](https://github.com/Glenskii)
 
----
+[profile.glenegrant.com](https://profile.glenegrant.com)
+
+[github.com/Glenskii](https://github.com/Glenskii)
+
+[glen@glenegrant.com](mailto:glen@glenegrant.com)
 
 ## License
 
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — share freely, credit appreciated.
-
----
-
-`#mcp` `#claude` `#ai-tools` `#web-research` `#no-api-key` `#duckduckgo` `#model-context-protocol`
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Share it, build on
+it, and credit the work.

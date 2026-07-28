@@ -69,6 +69,10 @@ def test_multi_search_enforces_documented_query_count():
 
     assert result["error_code"] == "INVALID_INPUT"
 
+    result = asyncio.run(server.multi_search([str(index) for index in range(9)]))
+
+    assert result["error_code"] == "INVALID_INPUT"
+
 
 def test_fetch_page_blocks_redirect_to_private_host(monkeypatch):
     original_client = httpx.Client
@@ -134,3 +138,147 @@ def test_fetch_page_rejects_unsupported_content(monkeypatch):
     result = server.fetch_page("https://public.test/file.pdf")
 
     assert result["error_code"] == "UNSUPPORTED_CONTENT"
+
+
+def test_query_planner_respects_depth_and_policy():
+    quick = server._plan_queries("MCP security", "quick", "balanced")
+    deep = server._plan_queries("MCP security", "deep", "primary")
+
+    assert len(quick) == 3
+    assert len(deep) == 8
+    assert deep[0] == "MCP security"
+    assert "official report documentation" in deep[2]
+
+
+def test_domain_matching_does_not_allow_lookalikes():
+    assert server._matches_domain("docs.example.com", "example.com")
+    assert server._matches_domain("example.com", "example.com")
+    assert not server._matches_domain("example.com.evil.test", "example.com")
+
+
+def test_source_scoring_rewards_agreement_and_primary_sources():
+    ordinary_score, _ = server._source_score(
+        {
+            "url": "https://example.com/opinion",
+            "agreement_count": 1,
+        },
+        "primary",
+    )
+    primary_score, reasons = server._source_score(
+        {
+            "url": "https://developers.cloudflare.com/workers/",
+            "agreement_count": 3,
+        },
+        "primary",
+    )
+
+    assert primary_score > ordinary_score
+    assert "found by 3 query angles" in reasons
+    assert "likely first-party or authoritative" in reasons
+
+
+def test_extracts_metadata_for_citations():
+    html = """
+    <html><head>
+      <meta name="author" content="Glen E. Grant">
+      <meta property="article:published_time" content="2026-07-27">
+      <meta property="og:site_name" content="Glenski">
+      <link rel="canonical" href="https://example.com/research">
+    </head></html>
+    """
+
+    metadata = server._extract_metadata(html)
+
+    assert metadata["author"] == "Glen E. Grant"
+    assert metadata["published"] == "2026-07-27"
+    assert metadata["canonical_url"] == "https://example.com/research"
+
+
+def test_evidence_snippets_prioritize_question_terms():
+    text = (
+        "This unrelated opening discusses gardening in detail. "
+        "Cloudflare Workers provide edge compute close to users. "
+        "A final unrelated sentence discusses recipes and kitchens."
+    )
+
+    snippets = server._evidence_snippets(text, "How does Cloudflare Workers edge compute work?", 1)
+
+    assert snippets == ["Cloudflare Workers provide edge compute close to users."]
+
+
+def test_deep_research_builds_citation_ready_evidence(monkeypatch):
+    async def fake_multi_search(*args, **kwargs):
+        return {
+            "unique_source_count": 2,
+            "unique_sources": [
+                {
+                    "url": "https://developers.example.com/docs",
+                    "title": "Official docs",
+                    "agreement_count": 2,
+                    "found_by": ["query one", "query two"],
+                },
+                {
+                    "url": "https://independent.test/review",
+                    "title": "Independent review",
+                    "agreement_count": 1,
+                    "found_by": ["query one"],
+                },
+            ],
+            "results_by_query": {
+                "query one": {
+                    "results": [
+                        {
+                            "url": "https://developers.example.com/docs",
+                            "title": "Official docs",
+                            "snippet": "Official feature limits.",
+                            "published": "2026-07-20",
+                        },
+                        {
+                            "url": "https://independent.test/review",
+                            "title": "Independent review",
+                            "snippet": "Independent feature review.",
+                            "published": "",
+                        },
+                    ]
+                }
+            },
+        }
+
+    def fake_fetch_page(url, max_chars):
+        return {
+            "url": url,
+            "title": "Fetched source",
+            "text": (
+                "The research feature has a documented usage limit and a free option. "
+                "Independent testing describes the same research feature limit."
+            ),
+            "timestamp": "2026-07-27T12:00:00Z",
+            "metadata": {"author": "Researcher"},
+            "js_rendered_hint": False,
+        }
+
+    monkeypatch.setattr(server, "multi_search", fake_multi_search)
+    monkeypatch.setattr(server, "fetch_page", fake_fetch_page)
+
+    result = asyncio.run(
+        server.deep_research(
+            "What is the research feature limit?",
+            depth="quick",
+            source_policy="primary",
+            max_sources=2,
+        )
+    )
+
+    assert result["summary"]["usable_sources"] == 2
+    assert result["evidence"][0]["evidence_id"] == "S1"
+    assert result["evidence"][1]["evidence_id"] == "S2"
+    assert result["summary"]["primary_sources"] == 1
+    assert result["summary"]["confidence"] == "medium"
+    assert any(item["topic"] == "limit" for item in result["conflict_watch"])
+    assert "[S1]" in result["answer_instructions"]
+
+
+def test_deep_research_validates_controls():
+    result = asyncio.run(server.deep_research("A question", depth="massive"))
+
+    assert result["error_code"] == "INVALID_INPUT"

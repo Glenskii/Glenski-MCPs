@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "glenski-web-research-mcp"
-version = "2.2.0"
-description = "API-free web research MCP server using DuckDuckGo"
+version = "3.0.0"
+description = "Local-first deep web research MCP with citation-ready evidence"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "CC-BY-4.0" }
