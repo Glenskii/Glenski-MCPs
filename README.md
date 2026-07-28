@@ -11,7 +11,7 @@ documented, readable, and designed to work with any MCP-compatible host.
 ## Why this repo exists
 
 I like tools that do one job clearly. I also like a degree of privacy for some
-works: knowing what's running on my machine and where the data goes. And I like
+work: knowing what's running on my machine and where the data goes. And I like
 not paying API tokens for something that doesn't need a model call to work.
 
 That leads to a few simple rules:
