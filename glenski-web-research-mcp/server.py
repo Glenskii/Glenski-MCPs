@@ -14,7 +14,7 @@ Origin  : Built on the Web Research Prompt by Glen E. Grant
 Author  : Glen E. Grant  |  glen@glenegrant.com
 Website : https://profile.glenegrant.com
 GitHub  : https://github.com/Glenskii
-License : CC BY 4.0 -- https://creativecommons.org/licenses/by/4.0/
+License : MIT -- https://opensource.org/licenses/MIT
 
 Changelog
 ---------

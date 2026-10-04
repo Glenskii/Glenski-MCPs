@@ -75,5 +75,4 @@ Claude Desktop, Cursor, and Windsurf.
 
 ## License
 
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Share it, build on
-it, and credit the work.
+MIT. See [LICENSE](glenski-web-research-mcp/LICENSE).

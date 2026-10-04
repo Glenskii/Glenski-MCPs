@@ -1,7 +1,7 @@
 # Glenski Web Research MCP
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
-[![License: CC BY 4.0](https://img.shields.io/badge/license-CC%20BY%204.0-orange.svg)](https://creativecommons.org/licenses/by/4.0/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![No API Key](https://img.shields.io/badge/API%20key-none-brightgreen.svg)](#no-api-keys)
 [![MCP](https://img.shields.io/badge/MCP-compatible-blueviolet.svg)](https://modelcontextprotocol.io)
 
@@ -391,5 +391,4 @@ This MCP grew from the Web Research Prompt created and field-tested by
 
 ## License
 
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Share it, adapt it,
-and credit the work.
+MIT. See [LICENSE](LICENSE).
